@@ -16,16 +16,10 @@
  */
 package org.apache.servicecomb.core;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicLong;
-
-import javax.ws.rs.core.Response.Status;
-
+import com.google.common.eventbus.AllowConcurrentEvents;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import com.netflix.config.DynamicPropertyFactory;
 import org.apache.servicecomb.config.ConfigUtil;
 import org.apache.servicecomb.core.BootListener.BootEvent;
 import org.apache.servicecomb.core.BootListener.EventType;
@@ -50,10 +44,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import com.google.common.eventbus.AllowConcurrentEvents;
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
-import com.netflix.config.DynamicPropertyFactory;
+import javax.ws.rs.core.Response.Status;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicLong;
 
 // TODO: should not depend on spring, that will make integration more flexible
 public class SCBEngine {
@@ -231,7 +229,7 @@ public class SCBEngine {
     triggerEvent(EventType.AFTER_HANDLER);
 
     triggerEvent(EventType.BEFORE_PRODUCER_PROVIDER);
-    producerProviderManager.init();
+    producerProviderManager.init();//注册schema信息到本地对象
     triggerEvent(EventType.AFTER_PRODUCER_PROVIDER);
 
     triggerEvent(EventType.BEFORE_CONSUMER_PROVIDER);
@@ -246,7 +244,7 @@ public class SCBEngine {
 
     triggerEvent(EventType.BEFORE_REGISTRY);
 
-    triggerAfterRegistryEvent();
+    triggerAfterRegistryEvent();//注册到远程注册中心
 
     RegistryUtils.run();
 
